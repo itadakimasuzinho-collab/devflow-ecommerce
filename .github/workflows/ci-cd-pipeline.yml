@@ -5,6 +5,11 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
@@ -24,3 +29,21 @@ jobs:
 
       - name: Executar testes
         run: npm test
+
+      - name: Preparar arquivos para publicação
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./public
+
+  deploy:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Fazer deploy no GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
